@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 import sqlite3
+import time
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -40,6 +41,13 @@ def startup():
 
 @app.post("/measurements")
 def create_measurement(data: Measurement):
+    timestamp = int(time.time())
+    # makes sure the data was taken within an hour of being received by the server
+    # the timestamp sent by the sensors is in standard time, but this can be adjusted
+    if abs(timestamp - data.timestamp) > 3600:
+        raise HTTPException(status_code=400, detail="Timestamp does not match")
+        return
+
     with connect() as db:
         db.execute(
             "INSERT OR REPLACE INTO measurements VALUES (?, ?)",
