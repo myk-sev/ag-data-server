@@ -49,6 +49,16 @@ def create_measurement(data: Measurement):
         return
 
     with connect() as db:
+        # TODO: verify error handling works
+        #
+        # row = db.execute(
+        #     "SELECT timestamp FROM measurements WHERE timestamp = ?",
+        #     (timestamp,),
+        # ).fetchone()
+        #
+        # if row is not None:
+        #     return
+
         db.execute(
             "INSERT OR REPLACE INTO measurements VALUES (?, ?)",
             (data.timestamp, data.measurement),
