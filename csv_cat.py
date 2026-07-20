@@ -3,14 +3,25 @@ import pandas as pd
 from pathlib import Path
 
 def concatenate() -> DataFrame:
-    # read files to list
     csv_files = []
 
     for i in args.input:
-        csv_files.append(pd.read_csv(i, index_col=False, header=0))
+        new_file: DataFrame = pd.read_csv(i, index_col=False, header=0)
 
-        if 'Sensor name' not in csv_files[-1].columns:
-            csv_files[-1].loc[:, "Sensor name"] = Path(i).name.split('.')[0]
+        # FIX: drop old time columns
+        # TODO: specify pre-conversion time formats
+        if 'Timestamp for sample frequency every 1 min min' in new_file.columns:
+            new_file["Time"] = pd.to_datetime(new_file['Timestamp for sample frequency every 1 min min'])
+            new_file.drop(columns=['Timestamp for sample frequency every 1 min min'])
+
+        if 'Time(DD/MM/YYYY h:mm:ss A)' in new_file.columns:
+            new_file["Time"] = pd.to_datetime(new_file['Time(DD/MM/YYYY h:mm:ss A)'])
+            new_file.drop(columns=['Time(DD/MM/YYYY h:mm:ss A)'])
+
+        if 'Sensor name' not in new_file.columns:
+            new_file.loc[:, "Sensor name"] = Path(i).name.split('.')[0]
+
+        csv_files.append(new_file)
 
     frame = pd.concat(csv_files, axis=0, ignore_index=True)
 
