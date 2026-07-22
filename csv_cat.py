@@ -8,13 +8,12 @@ def concatenate() -> DataFrame:
     for i in args.input:
         new_file: DataFrame = pd.read_csv(i, index_col=False, header=0)
 
-        # TODO: specify pre-conversion time formats
         if 'Timestamp for sample frequency every 1 min min' in new_file.columns:
             new_file["Time"] = pd.to_datetime(new_file['Timestamp for sample frequency every 1 min min'])
             new_file.drop(columns=['Timestamp for sample frequency every 1 min min'], inplace=True)
 
         if 'Time(DD/MM/YYYY h:mm:ss A)' in new_file.columns:
-            new_file["Time"] = pd.to_datetime(new_file['Time(DD/MM/YYYY h:mm:ss A)'])
+            new_file["Time"] = pd.to_datetime(new_file['Time(DD/MM/YYYY h:mm:ss A)'], format = "%d/%m/%Y %I:%M:%S %p")
             new_file.drop(columns=['Time(DD/MM/YYYY h:mm:ss A)'], inplace=True)
 
         if 'Sensor name' not in new_file.columns:
