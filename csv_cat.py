@@ -18,7 +18,11 @@ def concatenate() -> DataFrame:
             new_file.drop(columns=['Time(DD/MM/YYYY h:mm:ss A)'], inplace=True)
 
         if 'Sensor name' not in new_file.columns:
-            new_file.loc[:, "Sensor name"] = Path(i).name.split('.')[0]
+            # NOTE: Does not work with Aranet naming scheme
+            name = Path(i).name.split('_')[0]
+            new_file.loc[:, "Sensor name"] = name
+            new_file.loc[:, "Building"] = name.split('-')[0]
+            new_file.loc[:, "Location"]  = name.split('-')[-1]
 
         csv_files.append(new_file)
 
